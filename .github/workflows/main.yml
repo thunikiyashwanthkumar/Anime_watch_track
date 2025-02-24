@@ -24,13 +24,14 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install pytest  # Install pytest explicitly
 
       - name: Run tests
         env:
           dbstr: ${{ secrets.dbstr }}  # Use MongoDB connection string from secrets
           dcbot: ${{ secrets.dcbot }}  # Use Discord bot token from secrets
         run: |
-          python -m pytest  # Replace with your test command if you have tests
+          python -m pytest  # Run tests
 
       - name: Lint code
         run: |
