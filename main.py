@@ -6,14 +6,16 @@ import random
 import os
 import requests
 from discord import Embed
+from dotenv import load_dotenv
 
 # Load environment variables
-dbstr = os.getenv('dbstr')
-dcbot = os.getenv('dcbot')
+load_dotenv()
+DBSTR = os.getenv('DBSTR')
+DCBOT = os.getenv('DCBOT')
 
 # Check if environment variables are set
-if not dbstr or not dcbot:
-    print("Error: Environment variables 'dbstr' and 'dcbot' are required.")
+if not DBSTR or not DCBOT:
+    print("Error: Environment variables 'DBSTR' and 'DCBOT' are required.")
     exit(1)
 
 # Initialize the bot with AutoShardedBot
@@ -22,7 +24,7 @@ intents.message_content = True
 bot = commands.AutoShardedBot(command_prefix="!", intents=intents)
 
 # MongoDB connection
-MONGO_URI = dbstr  # Use the environment variable directly
+MONGO_URI = DBSTR  # Use the environment variable directly
 client = MongoClient(MONGO_URI)
 db = client.anime_watchlist  # Database name
 collection = db.anime  # Collection name
@@ -352,4 +354,4 @@ async def anime_details(ctx, title: str = None):
     await ctx.send(embed=embed)
 
 # Run the bot
-bot.run(dcbot)
+bot.run(DCBOT)

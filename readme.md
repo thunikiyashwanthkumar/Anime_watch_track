@@ -1,52 +1,116 @@
-# Anime Watch Tracker
+# Anime Watch Track Bot
 
-## 📌 Overview
-Anime Watch Tracker is a CLI-based application designed to help you manage your anime watchlist efficiently. It allows users to track anime status, progress, genres, and preferences while also offering filtering, sorting, and search capabilities.
+A Discord bot for tracking your anime watchlist using the AniList API.
 
-## ✨ Features
-- **Add/Remove Anime**: Easily add or delete anime from your watchlist.
-- **Track Progress**: Update the number of episodes watched.
-- **Set Preferences**: Prioritize anime with High, Medium, or Low preference.
-- **Favorite List**: Mark/unmark anime as favorites.
-- **Sorting & Filtering**:
-  - Sort by **Title, Status, Preference, or Genre**.
-  - Filter by **Status (Watching, Completed, To Watch)**.
-  - Filter by **Genre or Preference Level**.
-- **Search Functionality**: Find anime quickly by title.
-- **Random Anime Picker**: Suggests a random anime from your list.
-- **Watch History & Dates**: Keep track of when you started and completed an anime.
-- **Save & Load Data**: Automatically saves anime details in a JSON file.
+## Features
 
-## 🚀 Installation & Usage
-### **1. Clone the Repository**
+- Track anime you're watching, plan to watch, or have completed
+- Search for anime using AniList's database
+- Mark favorites and track progress
+- View detailed information about anime
+- Paginated lists with reactions for navigation
+- Proper error handling and logging
+- MongoDB integration for data persistence
+
+## Requirements
+
+- Python 3.8 or higher
+- MongoDB database
+- Discord Bot Token
+- Dependencies listed in requirements.txt
+
+## Setup
+
+1. Clone the repository:
 ```bash
-git clone https://github.com/thunikiyashwanthkumar/Anime_watch_track.git
-cd anime_watch_tracker
+git clone <repository-url>
+cd anime-watch-track
 ```
-### **2. Run the Application**
+
+2. Create a virtual environment and activate it:
 ```bash
-python main.py
+python -m venv venv
+# On Windows
+venv\Scripts\activate
+# On Unix or MacOS
+source venv/bin/activate
 ```
-### **3. Follow the Menu Options**
-Select an option from the menu to add, update, or view your anime list.
 
-## 🛠️ Future Enhancements
-I plan to further develop this project with:
-- **Anime Recommendations based on user preferences**
-- **Integration with MyAnimeList/AniList APIs**
-- **Watch history analytics & statistics**
-- **Cloud sync for multi-device access**
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-## 📄 License
-This project is open-source and available under the [MIT License](LICENSE).
+4. Create a `.env` file in the root directory with the following content:
+```env
+# Database Configuration
+DBSTR=your_mongodb_connection_string
 
-## 💡 Contributions
-Contributions are welcome! Feel free to fork the project and submit a pull request.
+# Discord Bot Token
+DCBOT=your_discord_bot_token
 
-## 📞 Contact
-For any queries or suggestions, reach out via email or open an issue on GitHub.
+# Bot Configuration
+OWNER_IDS=your_discord_user_id  # Comma-separated for multiple owners
 
----
+# Logging Configuration
+LOG_LEVEL=INFO
+```
 
-Happy Watching! 🎥🍿
+5. Run the bot:
+```bash
+python src/bot.py
+```
 
+## Commands
+
+- `!add_anime <title> <status> <preference>` - Add an anime to your watchlist
+- `!delete_anime <title>` - Delete an anime from your watchlist
+- `!update_status <title> <new_status>` - Update the watching status
+- `!update_progress <title> <episodes>` - Update watched episodes
+- `!toggle_favorite <title>` - Toggle favorite status
+- `!search_anime <title>` - Search for anime information
+- `!list_anime` - List all anime in your watchlist
+- `!show_favorites` - Show your favorite anime
+- `!random_anime [preference]` - Get a random anime suggestion
+- `!anime_details <title>` - View detailed information about an anime
+
+## Project Structure
+
+```
+anime-watch-track/
+├── src/
+│   ├── bot.py
+│   └── cogs/
+│       ├── base_cog.py
+│       └── [feature_cogs].py
+├── utils/
+│   ├── database.py
+│   ├── anilist.py
+│   ├── embed_creator.py
+│   └── logger.py
+├── config/
+│   └── config.py
+├── logs/
+│   └── bot.log
+├── requirements.txt
+├── .env
+└── README.md
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a new branch for your feature
+3. Commit your changes
+4. Push to your branch
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- [discord.py](https://github.com/Rapptz/discord.py)
+- [AniList API](https://anilist.gitbook.io/anilist-apiv2-docs/)
+- [MongoDB](https://www.mongodb.com/) 
