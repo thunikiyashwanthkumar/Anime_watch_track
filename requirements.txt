@@ -1,5 +1,13 @@
-
 discord.py>=2.3.0
 pymongo>=4.6.0
 requests>=2.31.0
 python-dotenv>=1.0.0
+aiohttp>=3.9.0
+typing-extensions>=4.8.0
+colorama>=0.4.6  # For colored console output
+pytest>=7.4.0  # For testing
+pytest-asyncio>=0.21.0  # For async tests
+black>=23.9.0  # For code formatting
+flake8>=6.1.0  # For linting
+mypy>=1.5.1  # For type checking
+python-dateutil>=2.8.2  # For date handling
