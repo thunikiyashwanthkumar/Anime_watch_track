@@ -609,7 +609,7 @@ class AnimeCog(BaseCog):
         except Exception as e:
             await self.cog_command_error(ctx, e)
 
-    @commands.command(name="delete_anime", help="Delete an anime from your watchlist")
+    @commands.command(name="delete_anime", aliases=["delete"], help="Delete an anime from your watchlist")
     async def delete_anime(self, ctx, *, title=None):
         """Delete an anime from your watchlist
         
@@ -658,7 +658,7 @@ class AnimeCog(BaseCog):
         except Exception as e:
             await self.cog_command_error(ctx, e)
 
-    @commands.command(name="list_anime", help="List all anime in your watchlist")
+    @commands.command(name="list_anime", aliases=["list"], help="List all anime in your watchlist")
     async def list_anime(self, ctx):
         """List all anime in your watchlist
         
@@ -739,7 +739,7 @@ class AnimeCog(BaseCog):
         except Exception as e:
             await self.cog_command_error(ctx, e)
 
-    @commands.command(name="update_status", help="Update the status of an anime")
+    @commands.command(name="update_status", aliases=["update"], help="Update the status of an anime")
     async def update_status(self, ctx, *, args=None):
         """Update the status of an anime
         
@@ -803,7 +803,7 @@ class AnimeCog(BaseCog):
         except Exception as e:
             await self.cog_command_error(ctx, e)
 
-    @commands.command(name="toggle_favorite", help="Toggle favorite status of an anime")
+    @commands.command(name="toggle_favorite", aliases=["fav"], help="Toggle favorite status of an anime")
     async def toggle_favorite(self, ctx, *, title=None):
         """Toggle whether an anime is marked as favorite
         
@@ -836,7 +836,7 @@ class AnimeCog(BaseCog):
         except Exception as e:
             await self.cog_command_error(ctx, e)
 
-    @commands.command(name="search_anime", help="Search for an anime on AniList")
+    @commands.command(name="search_anime", aliases=["search", "sh"], help="Search for an anime on AniList")
     async def search_anime(self, ctx, *, title=None):
         """Search for an anime on AniList
         
@@ -863,7 +863,7 @@ class AnimeCog(BaseCog):
         except Exception as e:
             await self.cog_command_error(ctx, e)
 
-    @commands.command(name="status", help="Show detailed status of an anime")
+    @commands.command(name="status", aliases=[], help="Show detailed status of an anime")
     async def status(self, ctx, *, title=None):
         """Show detailed status view of an anime with progress bars and quick actions
         
@@ -1034,7 +1034,7 @@ class AnimeCog(BaseCog):
         except Exception as e:
             await self.cog_command_error(ctx, e)
 
-    @commands.command(name="manage", help="Manage your anime list with dropdown menus")
+    @commands.command(name="manage", aliases=["m"], help="Manage your anime list with dropdown menus")
     async def manage(self, ctx):
         """Manage your anime list using dropdown menus
         

@@ -5,6 +5,7 @@ import discord
 from typing import Optional
 import sys
 import os
+from pathlib import Path
 
 class OwnerCog(BaseCog):
     """Owner-only commands for bot management"""
@@ -13,13 +14,13 @@ class OwnerCog(BaseCog):
         """Check if the user is a bot owner"""
         return ctx.author.id in OWNER_IDS
 
-    @commands.command(name="shutdown", help="Shutdown the bot (Owner only)")
+    @commands.command(name="shutdown", aliases=["sd"], help="Shutdown the bot (Owner only)")
     async def shutdown(self, ctx):
         """Safely shuts down the bot"""
         await ctx.send("⚠️ Shutting down bot...")
         await self.bot.close()
 
-    @commands.command(name="reload", help="Reload a cog (Owner only)")
+    @commands.command(name="reload", aliases=["rl"], help="Reload a cog (Owner only)")
     async def reload(self, ctx, cog: str):
         """Reload a specific cog"""
         try:
@@ -28,7 +29,7 @@ class OwnerCog(BaseCog):
         except Exception as e:
             await ctx.send(f"❌ Error reloading `{cog}` cog: {str(e)}")
 
-    @commands.command(name="load", help="Load a cog (Owner only)")
+    @commands.command(name="load", aliases=["l"], help="Load a cog (Owner only)")
     async def load(self, ctx, cog: str):
         """Load a specific cog"""
         try:
@@ -37,7 +38,7 @@ class OwnerCog(BaseCog):
         except Exception as e:
             await ctx.send(f"❌ Error loading `{cog}` cog: {str(e)}")
 
-    @commands.command(name="unload", help="Unload a cog (Owner only)")
+    @commands.command(name="unload", aliases=["ul"], help="Unload a cog (Owner only)")
     async def unload(self, ctx, cog: str):
         """Unload a specific cog"""
         try:
@@ -46,7 +47,7 @@ class OwnerCog(BaseCog):
         except Exception as e:
             await ctx.send(f"❌ Error unloading `{cog}` cog: {str(e)}")
 
-    @commands.command(name="setstatus", help="Change bot status (Owner only)")
+    @commands.command(name="setstatus", aliases=["ss"], help="Change bot status (Owner only)")
     async def setstatus(self, ctx, *, status: str):
         """Change the bot's status message"""
         try:
@@ -55,7 +56,7 @@ class OwnerCog(BaseCog):
         except Exception as e:
             await ctx.send(f"❌ Error changing status: {str(e)}")
 
-    @commands.command(name="broadcast", help="Send a message to all servers (Owner only)")
+    @commands.command(name="broadcast", aliases=["dc"], help="Send a message to all servers (Owner only)")
     async def broadcast(self, ctx, *, message: str):
         """Broadcast a message to all servers the bot is in"""
         try:
@@ -78,7 +79,7 @@ class OwnerCog(BaseCog):
         except Exception as e:
             await ctx.send(f"❌ Error broadcasting message: {str(e)}")
 
-    @commands.command(name="serverlist", help="List all servers (Owner only)")
+    @commands.command(name="serverlist", aliases=["sl"], help="List all servers (Owner only)")
     async def serverlist(self, ctx):
         """Show list of servers the bot is in"""
         embed = discord.Embed(
@@ -95,7 +96,7 @@ class OwnerCog(BaseCog):
         
         await ctx.send(embed=embed)
 
-    @commands.command(name="leaveserver", help="Leave a server (Owner only)")
+    @commands.command(name="leaveserver", aliases=["ls"], help="Leave a server (Owner only)")
     async def leaveserver(self, ctx, guild_id: int):
         """Leave a specific server by ID"""
         guild = self.bot.get_guild(guild_id)
@@ -105,7 +106,7 @@ class OwnerCog(BaseCog):
         else:
             await ctx.send("❌ Server not found!")
 
-    @commands.command(name="maintenance", help="Toggle maintenance mode (Owner only)")
+    @commands.command(name="maintenance", aliases=["main"], help="Toggle maintenance mode (Owner only)")
     async def maintenance(self, ctx, mode: bool = None):
         """Toggle or set maintenance mode"""
         current_mode = getattr(self.bot, "maintenance_mode", False)
@@ -121,7 +122,7 @@ class OwnerCog(BaseCog):
         
         await ctx.send(f"{'🛠️' if new_mode else '✅'} Maintenance mode: **{'ON' if new_mode else 'OFF'}**")
 
-    @commands.command(name="stats", help="Show bot statistics (Owner only)")
+    @commands.command(name="stats", aliases=["st"], help="Show bot statistics (Owner only)")
     async def stats(self, ctx):
         """Show detailed bot statistics"""
         embed = discord.Embed(
@@ -144,7 +145,76 @@ class OwnerCog(BaseCog):
         
         await ctx.send(embed=embed)
 
-    @commands.command(name="servermute", help="Mute a user across all servers (Owner only)")
+    @commands.command(name="setprefix", aliases=["p"], help="Change the bot's command prefix (Owner only)")
+    async def setprefix(self, ctx, new_prefix: str):
+        """Change the bot's command prefix
+        
+        Usage: {prefix}setprefix <new_prefix>
+        Example: {prefix}setprefix !
+        """
+        try:
+            # Update the prefix in the config first
+            import os
+            from pathlib import Path
+            
+            # Update the .env file
+            env_path = Path(__file__).parent.parent.parent / '.env'
+            
+            # Read current .env content
+            if env_path.exists():
+                with open(env_path, 'r') as f:
+                    lines = f.readlines()
+            else:
+                lines = []
+            
+            # Find and update PREFIX line, or add it if not found
+            prefix_updated = False
+            for i, line in enumerate(lines):
+                if line.startswith('PREFIX='):
+                    lines[i] = f'PREFIX={new_prefix}\n'
+                    prefix_updated = True
+                    break
+            
+            if not prefix_updated:
+                lines.append(f'PREFIX={new_prefix}\n')
+            
+            # Write back to .env
+            with open(env_path, 'w') as f:
+                f.writelines(lines)
+            
+            # Update the prefix in memory
+            import sys
+            sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+            global PREFIX
+            from src.config.config import PREFIX
+            PREFIX = new_prefix
+            
+            # Create a new prefix getter function
+            async def new_prefix_getter(bot, message):
+                prefixes = [new_prefix]
+                prefixes.extend([f'<@!{bot.user.id}> ', f'<@{bot.user.id}> '])
+                if message.author.id in OWNER_IDS:
+                    prefixes.append('?')
+                return prefixes
+            
+            # Update the bot's command prefix
+            self.bot.command_prefix = new_prefix_getter
+            
+            # Update bot's status to show new prefix
+            await self.bot.change_presence(
+                activity=discord.Game(name=f"AniTrack | {new_prefix}help")
+            )
+            
+            # Force update help command
+            self.bot.help_command.context = ctx
+            
+            await ctx.send(f"✅ Command prefix updated to: `{new_prefix}`")
+            
+        except Exception as e:
+            await ctx.send(f"❌ Error changing prefix: {str(e)}")
+            raise e  # Re-raise to see the full error in logs
+
+    @commands.command(name="servermute", aliases=["sm"], help="Mute a user across all servers (Owner only)")
     async def servermute(self, ctx, user_id: int, *, reason: str = "No reason provided"):
         """Mute a user in all mutual servers"""
         try:
@@ -191,7 +261,7 @@ class OwnerCog(BaseCog):
         except Exception as e:
             await ctx.send(f"❌ Error: {str(e)}")
 
-    @commands.command(name="serverunmute", help="Unmute a user across all servers (Owner only)")
+    @commands.command(name="serverunmute", aliases=["sum"], help="Unmute a user across all servers (Owner only)")
     async def serverunmute(self, ctx, user_id: int, *, reason: str = "No reason provided"):
         """Unmute a user in all mutual servers"""
         try:
@@ -228,7 +298,7 @@ class OwnerCog(BaseCog):
         except Exception as e:
             await ctx.send(f"❌ Error: {str(e)}")
 
-    @commands.command(name="serverban", help="Ban a user from all servers (Owner only)")
+    @commands.command(name="serverban", aliases=["sb"], help="Ban a user from all servers (Owner only)")
     async def serverban(self, ctx, user_id: int, *, reason: str = "No reason provided"):
         """Ban a user from all mutual servers"""
         try:
@@ -263,7 +333,7 @@ class OwnerCog(BaseCog):
         except Exception as e:
             await ctx.send(f"❌ Error: {str(e)}")
 
-    @commands.command(name="serverunban", help="Unban a user from all servers (Owner only)")
+    @commands.command(name="serverunban", aliases=["sub"], help="Unban a user from all servers (Owner only)")
     async def serverunban(self, ctx, user_id: int, *, reason: str = "No reason provided"):
         """Unban a user from all mutual servers"""
         try:
@@ -298,7 +368,7 @@ class OwnerCog(BaseCog):
         except Exception as e:
             await ctx.send(f"❌ Error: {str(e)}")
 
-    @commands.command(name="guildinvites", help="List invite links for all servers (Owner only)")
+    @commands.command(name="guildinvites", aliases=["gl"], help="List invite links for all servers (Owner only)")
     async def guildinvites(self, ctx):
         """Generate and list invite links for all servers"""
         embed = discord.Embed(
@@ -364,7 +434,7 @@ class OwnerCog(BaseCog):
         embed.set_footer(text=f"Total Servers: {len(self.bot.guilds)}")
         await message.edit(embed=embed)
 
-    @commands.command(name="importlist", help="Import anime list for a user (Owner only)")
+    @commands.command(name="importlist", aliases=["iml"], help="Import anime list for a user (Owner only)")
     async def importlist(self, ctx, user_id: int):
         """Import anime watchlist for a specific user"""
         try:

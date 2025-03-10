@@ -13,8 +13,28 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 # Load environment variables
 load_dotenv()
 
-from config.config import PREFIX, DESCRIPTION, DISCORD_TOKEN
+from config.config import PREFIX, DESCRIPTION, DISCORD_TOKEN, OWNER_IDS
 from utils.logger import logger, log_startup, log_shutdown
+
+async def get_prefix(bot, message):
+    """Get the command prefix for a message
+    
+    This function allows for:
+    1. Using mentions as a prefix (e.g. @bot help)
+    2. Using the configured prefix
+    3. Owner can use ? as a prefix
+    """
+    # Get base prefixes
+    prefixes = [PREFIX]
+    
+    # Add bot mention as a prefix
+    prefixes.extend([f'<@!{bot.user.id}> ', f'<@{bot.user.id}> '])
+    
+    # Add ? prefix for bot owners
+    if message.author.id in OWNER_IDS:
+        prefixes.append('?')
+    
+    return prefixes
 
 class AnimeBot(commands.Bot):
     def __init__(self):
@@ -23,7 +43,7 @@ class AnimeBot(commands.Bot):
         intents.members = True
         
         super().__init__(
-            command_prefix=PREFIX,
+            command_prefix=get_prefix,
             description=DESCRIPTION,
             intents=intents,
             case_insensitive=True
