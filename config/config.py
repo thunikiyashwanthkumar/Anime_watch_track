@@ -8,6 +8,7 @@ load_dotenv()
 DCBOT = os.getenv('DCBOT')  # Bot Token
 DBSTR = os.getenv('DBSTR')  # MongoDB Connection String
 PREFIX = os.getenv('PREFIX', ',')  # Command Prefix, defaults to ',' if not set
+DESCRIPTION = os.getenv('DESCRIPTION', 'An Anime Tracking Discord Bot')  # Bot description
 OWNER_IDS = [int(id.strip()) for id in os.getenv('OWNER_IDS', '').split(',') if id.strip()]  # List of owner IDs
 
 # Validate required environment variables
@@ -23,6 +24,7 @@ BOT_SETTINGS = {
     'command_prefix': PREFIX,
     'owner_ids': set(OWNER_IDS),
     'case_insensitive': True,
+    'description': DESCRIPTION
 }
 
 # Database Settings
