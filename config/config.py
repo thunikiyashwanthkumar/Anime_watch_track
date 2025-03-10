@@ -5,17 +5,43 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Bot Configuration
-PREFIX = ","
-DESCRIPTION = "An Anime Tracking Discord Bot"
-OWNER_IDS = [int(id.strip()) for id in os.getenv('OWNER_IDS', '').split(',') if id.strip()]
+DCBOT = os.getenv('DCBOT')  # Bot Token
+DBSTR = os.getenv('DBSTR')  # MongoDB Connection String
+PREFIX = os.getenv('PREFIX', ',')  # Command Prefix, defaults to ',' if not set
+OWNER_IDS = [int(id.strip()) for id in os.getenv('OWNER_IDS', '').split(',') if id.strip()]  # List of owner IDs
+
+# Validate required environment variables
+if not DCBOT:
+    raise ValueError("Bot token (DCBOT) not found in environment variables")
+if not DBSTR:
+    raise ValueError("MongoDB connection string (DBSTR) not found in environment variables")
+if not OWNER_IDS:
+    raise ValueError("No owner IDs (OWNER_IDS) found in environment variables")
+
+# Bot Settings
+BOT_SETTINGS = {
+    'command_prefix': PREFIX,
+    'owner_ids': set(OWNER_IDS),
+    'case_insensitive': True,
+}
+
+# Database Settings
+DB_SETTINGS = {
+    'uri': DBSTR,
+    'database': 'anime_watchlist',
+    'collections': {
+        'users': 'users',
+        'anime_lists': 'anime_lists'
+    }
+}
 
 # API Tokens
-DISCORD_TOKEN = os.getenv('DCBOT')
-MONGODB_URI = os.getenv('DBSTR')
+DISCORD_TOKEN = DCBOT
+MONGODB_URI = DBSTR
 
 # Database Configuration
-DB_NAME = "anime_watchlist"
-COLLECTION_NAME = "anime"
+DB_NAME = DB_SETTINGS['database']
+COLLECTION_NAME = DB_SETTINGS['collections']['anime_lists']
 
 # AniList API
 ANILIST_API_URL = "https://graphql.anilist.co"
