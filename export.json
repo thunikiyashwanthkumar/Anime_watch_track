@@ -1,0 +1,48 @@
+{
+    "Watching": [
+        {
+            "link": "https://myanimelist.net/anime/35760",
+            "name": "Attack on Titan Season 3",
+            "mal_id": 35760,
+            "watchListType": 1
+        },
+        {
+            "link": "https://myanimelist.net/anime/25777",
+            "name": "Attack on Titan Season 2",
+            "mal_id": 25777,
+            "watchListType": 1
+        },
+        {
+            "link": "https://myanimelist.net/anime/38000",
+            "name": "Demon Slayer: Kimetsu no Yaiba",
+            "mal_id": 38000,
+            "watchListType": 1
+        },
+        {
+            "link": "https://myanimelist.net/anime/21",
+            "name": "One Piece",
+            "mal_id": 21,
+            "watchListType": 1
+        }
+    ],
+    "Plan to Watch": [
+        {
+            "link": "https://myanimelist.net/anime/20",
+            "name": "Naruto",
+            "mal_id": 20,
+            "watchListType": 3
+        },
+        {
+            "link": "https://myanimelist.net/anime/527",
+            "name": "Pokémon",
+            "mal_id": 527,
+            "watchListType": 3
+        },
+        {
+            "link": "https://myanimelist.net/anime/49730",
+            "name": "Pokémon Evolutions",
+            "mal_id": 49730,
+            "watchListType": 3
+        }
+    ]
+}

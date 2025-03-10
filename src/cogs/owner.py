@@ -144,6 +144,301 @@ class OwnerCog(BaseCog):
         
         await ctx.send(embed=embed)
 
+    @commands.command(name="servermute", help="Mute a user across all servers (Owner only)")
+    async def servermute(self, ctx, user_id: int, *, reason: str = "No reason provided"):
+        """Mute a user in all mutual servers"""
+        try:
+            user = await self.bot.fetch_user(user_id)
+            if not user:
+                await ctx.send("❌ User not found!")
+                return
+
+            success_count = 0
+            fail_count = 0
+            
+            for guild in self.bot.guilds:
+                try:
+                    member = await guild.fetch_member(user_id)
+                    if member:
+                        # Find or create muted role
+                        muted_role = discord.utils.get(guild.roles, name="Muted")
+                        if not muted_role:
+                            # Create muted role with no permissions
+                            permissions = discord.Permissions()
+                            permissions.update(send_messages=False, speak=False)
+                            muted_role = await guild.create_role(name="Muted", permissions=permissions)
+                            
+                            # Update channel permissions for muted role
+                            for channel in guild.channels:
+                                await channel.set_permissions(muted_role, send_messages=False, speak=False)
+                        
+                        await member.add_roles(muted_role, reason=reason)
+                        success_count += 1
+                except Exception as e:
+                    fail_count += 1
+                    continue
+
+            embed = discord.Embed(
+                title="🔇 Server Mute Results",
+                color=discord.Color.orange()
+            )
+            embed.add_field(name="User", value=f"{user} (ID: {user.id})", inline=False)
+            embed.add_field(name="Reason", value=reason, inline=False)
+            embed.add_field(name="Success", value=f"Muted in {success_count} servers", inline=True)
+            embed.add_field(name="Failed", value=f"Failed in {fail_count} servers", inline=True)
+            
+            await ctx.send(embed=embed)
+        except Exception as e:
+            await ctx.send(f"❌ Error: {str(e)}")
+
+    @commands.command(name="serverunmute", help="Unmute a user across all servers (Owner only)")
+    async def serverunmute(self, ctx, user_id: int, *, reason: str = "No reason provided"):
+        """Unmute a user in all mutual servers"""
+        try:
+            user = await self.bot.fetch_user(user_id)
+            if not user:
+                await ctx.send("❌ User not found!")
+                return
+
+            success_count = 0
+            fail_count = 0
+            
+            for guild in self.bot.guilds:
+                try:
+                    member = await guild.fetch_member(user_id)
+                    if member:
+                        muted_role = discord.utils.get(guild.roles, name="Muted")
+                        if muted_role and muted_role in member.roles:
+                            await member.remove_roles(muted_role, reason=reason)
+                            success_count += 1
+                except Exception as e:
+                    fail_count += 1
+                    continue
+
+            embed = discord.Embed(
+                title="🔊 Server Unmute Results",
+                color=discord.Color.green()
+            )
+            embed.add_field(name="User", value=f"{user} (ID: {user.id})", inline=False)
+            embed.add_field(name="Reason", value=reason, inline=False)
+            embed.add_field(name="Success", value=f"Unmuted in {success_count} servers", inline=True)
+            embed.add_field(name="Failed", value=f"Failed in {fail_count} servers", inline=True)
+            
+            await ctx.send(embed=embed)
+        except Exception as e:
+            await ctx.send(f"❌ Error: {str(e)}")
+
+    @commands.command(name="serverban", help="Ban a user from all servers (Owner only)")
+    async def serverban(self, ctx, user_id: int, *, reason: str = "No reason provided"):
+        """Ban a user from all mutual servers"""
+        try:
+            user = await self.bot.fetch_user(user_id)
+            if not user:
+                await ctx.send("❌ User not found!")
+                return
+
+            success_count = 0
+            fail_count = 0
+            
+            for guild in self.bot.guilds:
+                try:
+                    member = await guild.fetch_member(user_id)
+                    if member:
+                        await guild.ban(user, reason=reason)
+                        success_count += 1
+                except Exception as e:
+                    fail_count += 1
+                    continue
+
+            embed = discord.Embed(
+                title="🔨 Server Ban Results",
+                color=discord.Color.red()
+            )
+            embed.add_field(name="User", value=f"{user} (ID: {user.id})", inline=False)
+            embed.add_field(name="Reason", value=reason, inline=False)
+            embed.add_field(name="Success", value=f"Banned in {success_count} servers", inline=True)
+            embed.add_field(name="Failed", value=f"Failed in {fail_count} servers", inline=True)
+            
+            await ctx.send(embed=embed)
+        except Exception as e:
+            await ctx.send(f"❌ Error: {str(e)}")
+
+    @commands.command(name="serverunban", help="Unban a user from all servers (Owner only)")
+    async def serverunban(self, ctx, user_id: int, *, reason: str = "No reason provided"):
+        """Unban a user from all mutual servers"""
+        try:
+            user = await self.bot.fetch_user(user_id)
+            if not user:
+                await ctx.send("❌ User not found!")
+                return
+
+            success_count = 0
+            fail_count = 0
+            
+            for guild in self.bot.guilds:
+                try:
+                    bans = [ban.user.id async for ban in guild.bans()]
+                    if user_id in bans:
+                        await guild.unban(user, reason=reason)
+                        success_count += 1
+                except Exception as e:
+                    fail_count += 1
+                    continue
+
+            embed = discord.Embed(
+                title="🔓 Server Unban Results",
+                color=discord.Color.green()
+            )
+            embed.add_field(name="User", value=f"{user} (ID: {user.id})", inline=False)
+            embed.add_field(name="Reason", value=reason, inline=False)
+            embed.add_field(name="Success", value=f"Unbanned in {success_count} servers", inline=True)
+            embed.add_field(name="Failed", value=f"Failed in {fail_count} servers", inline=True)
+            
+            await ctx.send(embed=embed)
+        except Exception as e:
+            await ctx.send(f"❌ Error: {str(e)}")
+
+    @commands.command(name="guildinvites", help="List invite links for all servers (Owner only)")
+    async def guildinvites(self, ctx):
+        """Generate and list invite links for all servers"""
+        embed = discord.Embed(
+            title="🔗 Server Invite Links",
+            description="Generating invite links for all servers...",
+            color=discord.Color.blue()
+        )
+        message = await ctx.send(embed=embed)
+        
+        results = []
+        for guild in self.bot.guilds:
+            try:
+                # Try to get the system channel or first text channel
+                invite_channel = guild.system_channel or next(
+                    (channel for channel in guild.text_channels 
+                     if channel.permissions_for(guild.me).create_instant_invite),
+                    None
+                )
+                
+                if invite_channel:
+                    # Create an invite that never expires
+                    invite = await invite_channel.create_invite(
+                        reason=f"Invite requested by {ctx.author}",
+                        max_age=0
+                    )
+                    results.append({
+                        "name": guild.name,
+                        "success": True,
+                        "invite": invite.url,
+                        "members": guild.member_count
+                    })
+                else:
+                    results.append({
+                        "name": guild.name,
+                        "success": False,
+                        "error": "No suitable channel found"
+                    })
+            except Exception as e:
+                results.append({
+                    "name": guild.name,
+                    "success": False,
+                    "error": str(e)
+                })
+        
+        # Create new embed with results
+        embed = discord.Embed(
+            title="🔗 Server Invite Links",
+            color=discord.Color.blue()
+        )
+        
+        for result in results:
+            if result["success"]:
+                value = f"Members: {result['members']}\nInvite: {result['invite']}"
+            else:
+                value = f"Error: {result['error']}"
+            
+            embed.add_field(
+                name=result["name"],
+                value=value,
+                inline=False
+            )
+        
+        embed.set_footer(text=f"Total Servers: {len(self.bot.guilds)}")
+        await message.edit(embed=embed)
+
+    @commands.command(name="importlist", help="Import anime list for a user (Owner only)")
+    async def importlist(self, ctx, user_id: int):
+        """Import anime watchlist for a specific user"""
+        try:
+            user = await self.bot.fetch_user(user_id)
+            if not user:
+                await ctx.send("❌ User not found!")
+                return
+
+            # Watchlist data
+            watchlist_data = {
+                "Watching": [
+                    {"title": "Attack on Titan Season 3", "status": "Watching", "episodes_watched": 0, "total_episodes": 12, "source_link": "https://myanimelist.net/anime/35760", "is_favorite": False},
+                    {"title": "Attack on Titan Season 2", "status": "Watching", "episodes_watched": 0, "total_episodes": 12, "source_link": "https://myanimelist.net/anime/25777", "is_favorite": False},
+                    {"title": "Demon Slayer: Kimetsu no Yaiba", "status": "Watching", "episodes_watched": 0, "total_episodes": 26, "source_link": "https://myanimelist.net/anime/38000", "is_favorite": False},
+                    {"title": "One Piece", "status": "Watching", "episodes_watched": 0, "total_episodes": 0, "source_link": "https://myanimelist.net/anime/21", "is_favorite": False}
+                ],
+                "Plan to Watch": [
+                    {"title": "Naruto", "status": "Plan to Watch", "episodes_watched": 0, "total_episodes": 220, "source_link": "https://myanimelist.net/anime/20", "is_favorite": False},
+                    {"title": "Pokémon", "status": "Plan to Watch", "episodes_watched": 0, "total_episodes": 0, "source_link": "https://myanimelist.net/anime/527", "is_favorite": False},
+                    {"title": "Pokémon Evolutions", "status": "Plan to Watch", "episodes_watched": 0, "total_episodes": 8, "source_link": "https://myanimelist.net/anime/49730", "is_favorite": False}
+                ]
+            }
+
+            success_count = 0
+            error_count = 0
+            
+            # Process Watching anime
+            for anime in watchlist_data["Watching"]:
+                try:
+                    await self.db.add_anime(
+                        user_id=user_id,
+                        title=anime["title"],
+                        status=anime["status"],
+                        episodes_watched=anime["episodes_watched"],
+                        total_episodes=anime["total_episodes"],
+                        source_link=anime["source_link"],
+                        is_favorite=anime["is_favorite"]
+                    )
+                    success_count += 1
+                except Exception as e:
+                    error_count += 1
+                    print(f"Error adding {anime['title']}: {str(e)}")
+
+            # Process Plan to Watch anime
+            for anime in watchlist_data["Plan to Watch"]:
+                try:
+                    await self.db.add_anime(
+                        user_id=user_id,
+                        title=anime["title"],
+                        status="To Watch",  # Convert "Plan to Watch" to "To Watch"
+                        episodes_watched=anime["episodes_watched"],
+                        total_episodes=anime["total_episodes"],
+                        source_link=anime["source_link"],
+                        is_favorite=anime["is_favorite"]
+                    )
+                    success_count += 1
+                except Exception as e:
+                    error_count += 1
+                    print(f"Error adding {anime['title']}: {str(e)}")
+
+            embed = discord.Embed(
+                title="📥 Watchlist Import Results",
+                color=discord.Color.green()
+            )
+            embed.add_field(name="User", value=f"{user} (ID: {user.id})", inline=False)
+            embed.add_field(name="Successfully Added", value=str(success_count), inline=True)
+            embed.add_field(name="Failed to Add", value=str(error_count), inline=True)
+            embed.add_field(name="Total Anime", value=str(success_count + error_count), inline=True)
+            
+            await ctx.send(embed=embed)
+
+        except Exception as e:
+            await ctx.send(f"❌ Error importing watchlist: {str(e)}")
+
 async def setup(bot):
     await bot.add_cog(OwnerCog(bot))
     return True 

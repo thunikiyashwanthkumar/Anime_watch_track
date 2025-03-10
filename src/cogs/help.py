@@ -9,51 +9,69 @@ class CustomHelpCommand(commands.HelpCommand):
         return f'{PREFIX}{command.qualified_name} {command.signature}'
 
     async def send_bot_help(self, mapping):
-        embed = Embed(title="📚 Bot Commands", color=0x3498db)
+        embed = Embed(title="📚 Available Commands", color=0x3498db)
         
         # Check if user is owner
         is_owner = self.context.author.id in OWNER_IDS
         
+        anime_commands = []
+        owner_commands = []
+        
         for cog, commands in mapping.items():
-            filtered_commands = []
             for cmd in commands:
-                # Skip owner commands for non-owners
-                if cmd.cog_name == "OwnerCog" and not is_owner:
-                    continue
                 if not cmd.hidden:
-                    filtered_commands.append(cmd)
-            
-            if filtered_commands:
-                cog_name = getattr(cog, "qualified_name", "Other")
-                # Skip showing OwnerCog section to non-owners
-                if cog_name == "OwnerCog" and not is_owner:
-                    continue
-                    
-                command_list = [f"`{PREFIX}{cmd.name}` - {cmd.help}" for cmd in filtered_commands]
-                if command_list:
-                    embed.add_field(
-                        name=f"📌 {cog_name}" if cog else "📌 Misc",
-                        value="\n".join(command_list),
-                        inline=False
-                    )
+                    if cmd.cog_name == "OwnerCog":
+                        if is_owner:
+                            owner_commands.append(cmd)
+                    elif cmd.cog_name != "HelpCog":
+                        anime_commands.append(cmd)
+        
+        # Add anime commands
+        if anime_commands:
+            command_list = [f"`{PREFIX}{cmd.name}` - {cmd.help}" for cmd in anime_commands]
+            embed.add_field(
+                name="🎌 Anime Commands",
+                value="\n".join(command_list),
+                inline=False
+            )
+        
+        # Add owner commands only for owners
+        if owner_commands and is_owner:
+            command_list = [f"`{PREFIX}{cmd.name}` - {cmd.help}" for cmd in owner_commands]
+            embed.add_field(
+                name="⚙️ Owner Commands",
+                value="\n".join(command_list),
+                inline=False
+            )
         
         embed.set_footer(text=f"Type {PREFIX}help <command> for more info on a command.")
         await self.get_destination().send(embed=embed)
 
     async def send_command_help(self, command):
-        embed = Embed(title=f"Command: {command.name}", color=0x3498db)
-        
         # Don't show owner commands to non-owners
         if command.cog_name == "OwnerCog" and self.context.author.id not in OWNER_IDS:
-            embed.description = "❌ This command does not exist."
+            embed = Embed(title="Command Not Found", color=0xe74c3c)
+            embed.description = "This command does not exist."
             await self.get_destination().send(embed=embed)
             return
             
+        embed = Embed(title=f"Command: {command.name}", color=0x3498db)
         embed.description = command.help or "No description available."
-        embed.add_field(name="Usage", value=f"`{self.get_command_signature(command)}`", inline=False)
         
+        # Add usage
+        embed.add_field(
+            name="Usage",
+            value=f"`{self.get_command_signature(command)}`",
+            inline=False
+        )
+        
+        # Add aliases if any
         if command.aliases:
-            embed.add_field(name="Aliases", value=", ".join(f"`{alias}`" for alias in command.aliases), inline=False)
+            embed.add_field(
+                name="Aliases",
+                value=", ".join(f"`{alias}`" for alias in command.aliases),
+                inline=False
+            )
             
         await self.get_destination().send(embed=embed)
 
@@ -62,14 +80,18 @@ class CustomHelpCommand(commands.HelpCommand):
         await self.get_destination().send(embed=embed)
 
     async def send_cog_help(self, cog):
-        embed = Embed(title=f"{cog.qualified_name} Commands", color=0x3498db)
-        
         # Don't show owner cog to non-owners
         if cog.qualified_name == "OwnerCog" and self.context.author.id not in OWNER_IDS:
-            embed.description = "❌ This module does not exist."
+            embed = Embed(title="Module Not Found", color=0xe74c3c)
+            embed.description = "This module does not exist."
             await self.get_destination().send(embed=embed)
             return
             
+        embed = Embed(
+            title="Commands Help",
+            color=0x3498db
+        )
+        
         if cog.description:
             embed.description = cog.description
             
